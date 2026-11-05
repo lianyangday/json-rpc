@@ -4,22 +4,29 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MUDUO_SRC="$ROOT/muduo-master"
-INSTALL="$ROOT/build/release-install-cpp11"
 JOBS="${JOBS:-$(nproc)}"
 
-echo "[1/3] 编译 muduo ..."
-if [ ! -f "$INSTALL/lib/libmuduo_net.a" ]; then
-    ( cd "$MUDUO_SRC" && ./build.sh -j"$JOBS" )
-    mkdir -p "$ROOT/build"
-    cp -a "$MUDUO_SRC/build/release-install-cpp11" "$ROOT/build/" 2>/dev/null || true
-else
-    echo "      muduo 已构建，跳过"
-fi
+find_muduo_lib() {
+    find "$ROOT" -name 'libmuduo_net.a' -print -quit 2>/dev/null | xargs -r dirname
+}
 
-INC="$INSTALL/include"
-LIB="$INSTALL/lib"
-CXXFLAGS="-std=c++11 -O2 -g -I$INC -I$ROOT/source"
-LDFLAGS="-L$LIB -ljsoncpp -lmuduo_net -lmuduo_base -pthread"
+echo "[1/3] 编译 muduo ..."
+MUDUO_LIB="$(find_muduo_lib)"
+if [ -z "$MUDUO_LIB" ]; then
+    ( cd "$MUDUO_SRC" && ./build.sh -j"$JOBS" )
+    MUDUO_LIB="$(find_muduo_lib)"
+fi
+if [ -z "$MUDUO_LIB" ]; then
+    echo "错误：找不到 libmuduo_net.a，muduo 构建失败" >&2
+    exit 1
+fi
+echo "      muduo 库目录: $MUDUO_LIB"
+
+# 头文件直接用 muduo 源码树（<muduo/net/...> 可解析）
+MUDUO_INC="$MUDUO_SRC"
+# -I$ROOT/source/test 兜底：test1/test_server.cpp 里写的是 ../common（比其它用例少一级）
+CXXFLAGS="-std=c++11 -O2 -g -I$MUDUO_INC -I$ROOT/source -I$ROOT/source/test"
+LDFLAGS="-L$MUDUO_LIB -ljsoncpp -lmuduo_net -lmuduo_base -pthread"
 
 echo "[2/3] 编译测试用例 ..."
 build_exe() {   # $1=目录 $2=输出名 $3=源文件
