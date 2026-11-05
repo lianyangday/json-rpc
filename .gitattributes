@@ -1,0 +1,17 @@
+# 统一换行符，保证 build.sh 在 Linux / Codespaces 中可执行
+* text=auto eol=lf
+
+*.sh    text eol=lf
+*.cpp   text eol=lf
+*.hpp   text eol=lf
+*.h     text eol=lf
+*.cc    text eol=lf
+*.json  text eol=lf
+*.md    text eol=lf
+makefile text eol=lf
+
+# 二进制
+*.png binary
+*.jpg binary
+*.zip binary
+*.pdf binary
