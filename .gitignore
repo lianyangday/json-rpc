@@ -1,0 +1,21 @@
+# 构建产物
+build/
+*.o
+*.a
+*.so
+
+# 编译出的可执行文件
+source/test/*/server
+source/test/*/client
+source/test/*/registry
+source/test/*/publish_client
+source/test/*/subscribe_client
+/bench
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+
+# 其他
+*.pdf

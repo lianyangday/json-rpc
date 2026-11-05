@@ -1,0 +1,13 @@
+{
+  "name": "json-rpc",
+  "image": "mcr.microsoft.com/devcontainers/cpp:1-ubuntu-22.04",
+  "postCreateCommand": "sudo apt-get update && sudo apt-get install -y build-essential cmake libjsoncpp-dev libboost-dev",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools"
+      ]
+    }
+  },
+  "remoteUser": "vscode"
+}
